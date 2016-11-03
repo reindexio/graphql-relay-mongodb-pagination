@@ -23,7 +23,8 @@
     "express": "^4.14.0",
     "express-graphql": "^0.5.3",
     "graphql": "^0.6.2",
-    "mongodb": "^2.2.4"
+    "mongodb": "^2.2.4",
+    "bluebird": "^3.4.6"
   },
   "devDependencies": {
     "babel-eslint": "^6.1.2",
