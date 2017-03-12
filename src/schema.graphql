@@ -1,0 +1,28 @@
+type PageInfo {
+  hasNextPage: Boolean!
+  hasPreviousPage: Boolean!
+}
+
+type Article {
+  id: ID!
+  text: String!
+}
+
+type ArticleConnection {
+  edges: [ArticleEdge]
+  pageInfo: PageInfo!
+}
+
+type ArticleEdge {
+  cursor: Cursor
+  node: Article
+}
+
+type Viewer {
+  id: ID!
+  allArticles: ArticleConnection
+}
+
+type Query {
+  viewer: Viewer
+}

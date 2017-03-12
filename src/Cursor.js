@@ -15,7 +15,11 @@ export function fromCursor(string) {
   }
 }
 
-const CursorType = new GraphQLScalarType({
+export const CursorTypeDef = `
+scalar Cursor
+`;
+
+export const Cursor = new GraphQLScalarType({
   name: 'Cursor',
   serialize(value) {
     if (value.value) {
@@ -35,5 +39,3 @@ const CursorType = new GraphQLScalarType({
     return fromCursor(value);
   },
 });
-
-export default CursorType;

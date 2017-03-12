@@ -1,125 +1,53 @@
-import {
-  GraphQLSchema,
-  GraphQLObjectType,
-  GraphQLID,
-  GraphQLString,
-  GraphQLNonNull,
-  GraphQLList,
-  GraphQLBoolean,
-  GraphQLInt,
-} from 'graphql';
-import Cursor from './Cursor';
+import { makeExecutableSchema } from 'graphql-tools';
+import { CursorTypeDef, Cursor } from './Cursor';
 import { getArticles } from './Article';
+import paginatorSchema from './schema.graphql';
 
-export const PageInfo = new GraphQLObjectType({
-  name: 'PageInfo',
-  fields: {
-    hasNextPage: {
-      type: new GraphQLNonNull(GraphQLBoolean),
-    },
-    hasPreviousPage: {
-      type: new GraphQLNonNull(GraphQLBoolean),
-    },
+
+const ArticleConnection = {
+  edges(parent) {
+    return parent.query.toArray();
   },
-});
+};
 
-export function createConnectionArguments() {
-  return {
-    first: {
-      type: GraphQLInt,
-    },
-    last: {
-      type: GraphQLInt,
-    },
-    before: {
-      type: Cursor,
-    },
-    after: {
-      type: Cursor,
-    },
-  };
-}
+const ArticleEdge = {
+  cursor(parent) {
+    return {
+      value: parent._id.toString(),
+    };
+  },
+  node(parent) {
+    return parent;
+  },
+};
 
-const Article = new GraphQLObjectType({
-  name: 'Article',
-  fields: () => ({
-    id: {
-      type: new GraphQLNonNull(GraphQLID),
-      resolve(parent) {
-        return parent._id.toString();
-      },
-    },
-    text: {
-      type: new GraphQLNonNull(GraphQLString),
-    },
-  }),
-});
+const Viewer = {
+  allArticles(parent, args, { mongodb }) {
+    const articles = getArticles(mongodb, args, 'text', -1);
+    console.log(articles);
+    return articles;
+  },
+};
 
-const ArticleConnection = new GraphQLObjectType({
-  name: 'ArticleConnection',
-  fields: () => ({
-    edges: {
-      type: new GraphQLList(ArticleEdge),
-      resolve(parent) {
-        return parent.query.toArray();
-      },
-    },
-    pageInfo: {
-      type: new GraphQLNonNull(PageInfo),
-    },
-  }),
-});
+const Query = {
+  viewer() {
+    return {
+      id: 'VIEWER_ID',
+    };
+  },
+};
 
-const ArticleEdge = new GraphQLObjectType({
-  name: 'ArticleEdge',
-  fields: () => ({
-    cursor: {
-      type: Cursor,
-      resolve(parent) {
-        return {
-          value: parent._id.toString(),
-        };
-      },
-    },
-    node: {
-      type: Article,
-      resolve(parent) {
-        return parent;
-      },
-    },
-  }),
-});
+const resolvers = {
+  Query,
+  Viewer,
+  ArticleEdge,
+  Cursor,
+  ArticleConnection,
+};
 
-const Viewer = new GraphQLObjectType({
-  name: 'Viewer',
-  fields: () => ({
-    id: {
-      type: new GraphQLNonNull(GraphQLID),
-    },
-    allArticles: {
-      type: ArticleConnection,
-      args: createConnectionArguments(),
-      resolve(parent, args, { mongodb }) {
-        return getArticles(mongodb, args, 'text', -1);
-      },
-    },
-  }),
-});
-
-const Schema = new GraphQLSchema({
-  query: new GraphQLObjectType({
-    name: 'RootQueryType',
-    fields: {
-      viewer: {
-        type: Viewer,
-        resolve() {
-          return {
-            id: 'VIEWER_ID',
-          };
-        },
-      },
-    },
-  }),
+const Schema = makeExecutableSchema({
+  typeDefs: [paginatorSchema, CursorTypeDef],
+  resolvers,
 });
 
 export default Schema;
