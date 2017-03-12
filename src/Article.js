@@ -22,9 +22,11 @@ export async function getArticles(mongodb, {
 }
 
 function limitQueryWithId(query, before, after, order) {
-  const filter = {
-    _id: {},
-  };
+  const filter = {};
+
+  if (before || after) {
+    filter._id = {};
+  }
 
   if (before) {
     const op = order === 1 ? '$lt' : '$gt';
@@ -36,6 +38,7 @@ function limitQueryWithId(query, before, after, order) {
     filter._id[op] = ObjectId(after.value);
   }
 
+  console.log(filter, order)
   return query.find(filter).sort([['_id', order]]);
 }
 
