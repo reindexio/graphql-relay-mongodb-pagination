@@ -3,6 +3,11 @@ import { CursorTypeDef, Cursor } from './Cursor';
 import { getArticles } from './Article';
 import paginatorSchema from './schema.graphql';
 
+const Article = {
+  id(parent) {
+    return parent._id.toString();
+  },
+};
 
 const ArticleConnection = {
   edges(parent) {
@@ -22,10 +27,9 @@ const ArticleEdge = {
 };
 
 const Viewer = {
-  allArticles(parent, args, { mongodb }) {
-    const articles = getArticles(mongodb, args, 'text', -1);
-    console.log(articles);
-    return articles;
+  allArticles(parent, { sortBy, order, ...args }, { mongodb }) {
+    const orderNum = order === 'ASC' ? 1 : -1;
+    return getArticles(mongodb, args, sortBy, orderNum);
   },
 };
 
@@ -40,9 +44,10 @@ const Query = {
 const resolvers = {
   Query,
   Viewer,
-  ArticleEdge,
   Cursor,
+  Article,
   ArticleConnection,
+  ArticleEdge,
 };
 
 const Schema = makeExecutableSchema({

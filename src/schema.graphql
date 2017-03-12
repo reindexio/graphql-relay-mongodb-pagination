@@ -18,9 +18,21 @@ type ArticleEdge {
   node: Article
 }
 
+enum sortOrder {
+  ASC
+  DESC
+}
+
 type Viewer {
   id: ID!
-  allArticles: ArticleConnection
+  allArticles (
+    sortBy: String = "text",
+    order: sortOrder = "ASC",
+    first: Int
+    last: Int
+    before: Cursor
+    after: Cursor
+  ): ArticleConnection
 }
 
 type Query {
