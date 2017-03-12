@@ -38,7 +38,6 @@ function limitQueryWithId(query, before, after, order) {
     filter._id[op] = ObjectId(after.value);
   }
 
-  console.log(filter, order)
   return query.find(filter).sort([['_id', order]]);
 }
 
