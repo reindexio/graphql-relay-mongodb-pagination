@@ -13,6 +13,7 @@
     'transform-exponentiation-operator',
     // Other
     'transform-runtime',
+    'babel-plugin-inline-import'
   ],
   presets: [
     'es2015-node5',

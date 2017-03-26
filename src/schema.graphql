@@ -1,0 +1,40 @@
+type PageInfo {
+  hasNextPage: Boolean!
+  hasPreviousPage: Boolean!
+}
+
+type Article {
+  id: ID!
+  text: String!
+}
+
+type ArticleConnection {
+  edges: [ArticleEdge]
+  pageInfo: PageInfo!
+}
+
+type ArticleEdge {
+  cursor: Cursor
+  node: Article
+}
+
+enum sortOrder {
+  ASC
+  DESC
+}
+
+type Viewer {
+  id: ID!
+  allArticles (
+    sortBy: String = "text",
+    order: sortOrder = "ASC",
+    first: Int
+    last: Int
+    before: Cursor
+    after: Cursor
+  ): ArticleConnection
+}
+
+type Query {
+  viewer: Viewer
+}
